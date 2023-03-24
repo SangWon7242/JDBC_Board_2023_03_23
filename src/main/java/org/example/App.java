@@ -35,11 +35,8 @@ public class App {
       try {
         conn = DriverManager.getConnection(url, "sbsst", "sbs123414");
 
-        int actionResult = doAction(conn, sc, rq, cmd);
-
-        if(actionResult == -1) {
-          break;
-        }
+        // action 메서드 실행
+        doAction(conn, sc, rq, cmd);
 
       } catch (SQLException e) {
         System.out.println("예외 : MySQL 드라이버 로딩 실패");
@@ -62,7 +59,7 @@ public class App {
     sc.close();
   }
 
-  private int doAction(Connection conn, Scanner sc, Rq rq, String cmd) {
+  private void doAction(Connection conn, Scanner sc, Rq rq, String cmd) {
     if(rq.getUrlPath().equals("/usr/article/write")) {
       System.out.println("== 게시물 등록 ==");
       System.out.printf("제목 : ");
@@ -73,7 +70,7 @@ public class App {
       SecSql sql = new SecSql();
 
       sql.append("INSERT INTO article");
-      sql.append(" SET regDate = NOW()");
+      sql.append("SET regDate = NOW()");
       sql.append(", updateDate = NOW()");
       sql.append(", title = ?", title);
       sql.append(", `body` = ?", body);
@@ -83,7 +80,6 @@ public class App {
       System.out.printf("%d번 게시물이 등록되었습니다.\n", id);
     }
     else if(rq.getUrlPath().equals("/usr/article/list")) {
-
       List<Article> articles = new ArrayList<>();
 
       SecSql sql = new SecSql();
@@ -102,7 +98,7 @@ public class App {
 
       if(articles.isEmpty()) {
         System.out.println("게시물이 존재하지 않습니다.");
-        return -1;
+        return;
       }
 
       System.out.println("번호 / 제목");
@@ -116,7 +112,20 @@ public class App {
 
       if(id == 0) {
         System.out.println("id를 올바르게 입력해주세요.");
-        return -1;
+        return;
+      }
+
+      SecSql sql = new SecSql();
+
+      sql.append("SELECT COUNT(*) AS cnt");
+      sql.append("FROM article");
+      sql.append("WHERE id = ?", id);
+
+      int articlesCount = DBUtil.selectRowIntValue(conn, sql);
+
+      if(articlesCount == 0) {
+        System.out.printf("%d번 게시글은 존재하지 않습니다.\n", id);
+        return;
       }
 
       System.out.printf("새 제목 : ");
@@ -124,7 +133,7 @@ public class App {
       System.out.printf("새 내용 : ");
       String body = sc.nextLine();
 
-      SecSql sql = new SecSql();
+      sql = new SecSql();
 
       sql.append("UPDATE article");
       sql.append("SET updateDate = NOW()");
@@ -136,6 +145,38 @@ public class App {
 
       System.out.printf("%d번 게시물이 수정되었습니다.\n", id);
     }
+    else if(rq.getUrlPath().equals("/usr/article/delete")) {
+      int id = rq.getIntParam("id", 0);
+
+      if(id == 0) {
+        System.out.println("id를 올바르게 입력해주세요.");
+        return;
+      }
+
+      System.out.printf("== %d번 게시글 삭제 ==\n", id);
+
+      SecSql sql = new SecSql();
+
+      sql.append("SELECT COUNT(*) AS cnt");
+      sql.append("FROM article");
+      sql.append("WHERE id = ?", id);
+
+      int articlesCount = DBUtil.selectRowIntValue(conn, sql);
+
+      if(articlesCount == 0) {
+        System.out.printf("%d번 게시글은 존재하지 않습니다.\n", id);
+        return;
+      }
+
+      sql = new SecSql();
+
+      sql.append("DELETE FROM article");
+      sql.append("WHERE id = ?", id);
+
+      DBUtil.delete(conn, sql);
+
+      System.out.printf("%d번 게시물이 삭제되었습니다.\n", id);
+    }
     else if(cmd.equals("system exit")) {
       System.out.println("시스템 종료");
       System.exit(0);
@@ -143,7 +184,7 @@ public class App {
     else {
       System.out.println("명령어를 확인해주세요.");
     }
-    return 0;
+    return;
   }
 
 }
