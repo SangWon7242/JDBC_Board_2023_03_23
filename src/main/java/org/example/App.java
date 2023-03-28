@@ -1,5 +1,6 @@
 package org.example;
 
+import org.example.controller.ArticleController;
 import org.example.controller.MemberController;
 import org.example.util.DBUtil;
 import org.example.util.SecSql;
@@ -23,7 +24,7 @@ public class App {
       // DB 연결
       Connection conn = null;
 
-      try{
+      try {
         Class.forName("com.mysql.jdbc.Driver");
       } catch (ClassNotFoundException e) {
         System.out.println("예외 : MySQL 드라이버 로딩 실패");
@@ -43,15 +44,12 @@ public class App {
         System.out.println("예외 : MySQL 드라이버 로딩 실패");
         System.out.println("프로그램을 종료합니다.");
         break;
-      }
-
-      finally {
-        try{
-          if( conn != null && !conn.isClosed()){
+      } finally {
+        try {
+          if (conn != null && !conn.isClosed()) {
             conn.close();
           }
-        }
-        catch( SQLException e){
+        } catch (SQLException e) {
           e.printStackTrace();
         }
       }
@@ -61,147 +59,33 @@ public class App {
   }
 
   private void action(Connection conn, Scanner sc, Rq rq, String cmd) {
+    ArticleController articleController = new ArticleController();
+    articleController.setConn(conn);
+    articleController.setScanner(sc);
+    articleController.setRq(rq);
+
     MemberController memberController = new MemberController();
     memberController.setConn(conn);
     memberController.setScanner(sc);
+    memberController.setRq(rq);
 
-    if(cmd.equals("/usr/member/join")) {
+
+    if (cmd.equals("/usr/member/join")) {
       memberController.join();
-    }
-    else if(rq.getUrlPath().equals("/usr/article/list")) {
-      List<Article> articles = new ArrayList<>();
-
-
-      SecSql sql = new SecSql();
-
-      sql.append("SELECT *");
-      sql.append("FROM article");
-      sql.append("ORDER BY id DESC");
-
-      List<Map<String, Object>> articleListMap = DBUtil.selectRows(conn, sql);
-
-      for(Map<String, Object> articleMap : articleListMap) {
-        articles.add(new Article(articleMap));
-      }
-
-      System.out.println("== 게시물 리스트 ==");
-
-      if(articles.isEmpty()) {
-        System.out.println("게시물이 존재하지 않습니다.");
-        return;
-      }
-
-      System.out.println("번호 / 제목");
-
-      for( Article article : articles ) {
-        System.out.printf("%d / %s\n", article.id, article.title);
-      }
-    }
-    else if(rq.getUrlPath().equals("/usr/article/detail")) {
-      int id = rq.getIntParam("id", 0);
-
-      if(id == 0) {
-        System.out.println("id를 올바르게 입력해주세요.");
-        return;
-      }
-
-      SecSql sql = new SecSql();
-
-      sql.append("SELECT *");
-      sql.append("FROM article");
-      sql.append("WHERE id = ?", id);
-
-      Map<String, Object> articleMap = DBUtil.selectRow(conn, sql);
-
-      if(articleMap.isEmpty()) {
-        System.out.printf("%d번 게시글은 존재하지 않습니다.\n", id);
-        return;
-      }
-
-      Article article = new Article(articleMap);
-
-      System.out.printf("번호 : %d\n", article.id);
-      System.out.printf("글쓴날짜 : %s\n", article.regDate);
-      System.out.printf("수정날짜 : %s\n", article.updateDate);
-      System.out.printf("제목 : %s\n", article.title);
-      System.out.printf("내용 : %s\n", article.body);
-
-    }
-    else if(rq.getUrlPath().equals("/usr/article/modify")) {
-      int id = rq.getIntParam("id", 0);
-
-      if(id == 0) {
-        System.out.println("id를 올바르게 입력해주세요.");
-        return;
-      }
-
-      SecSql sql = new SecSql();
-
-      sql.append("SELECT COUNT(*) AS cnt");
-      sql.append("FROM article");
-      sql.append("WHERE id = ?", id);
-
-      int articlesCount = DBUtil.selectRowIntValue(conn, sql);
-
-      if(articlesCount == 0) {
-        System.out.printf("%d번 게시글은 존재하지 않습니다.\n", id);
-        return;
-      }
-
-      System.out.printf("새 제목 : ");
-      String title = sc.nextLine();
-      System.out.printf("새 내용 : ");
-      String body = sc.nextLine();
-
-      sql = new SecSql();
-
-      sql.append("UPDATE article");
-      sql.append("SET updateDate = NOW()");
-      sql.append(", title = ?", title);
-      sql.append(", `body` = ?", body);
-      sql.append("WHERE id = ?", id);
-
-      DBUtil.update(conn, sql);
-
-      System.out.printf("%d번 게시물이 수정되었습니다.\n", id);
-    }
-    else if(rq.getUrlPath().equals("/usr/article/delete")) {
-      int id = rq.getIntParam("id", 0);
-
-      if(id == 0) {
-        System.out.println("id를 올바르게 입력해주세요.");
-        return;
-      }
-
-      System.out.printf("== %d번 게시글 삭제 ==\n", id);
-
-      SecSql sql = new SecSql();
-
-      sql.append("SELECT COUNT(*) AS cnt");
-      sql.append("FROM article");
-      sql.append("WHERE id = ?", id);
-
-      int articlesCount = DBUtil.selectRowIntValue(conn, sql);
-
-      if(articlesCount == 0) {
-        System.out.printf("%d번 게시글은 존재하지 않습니다.\n", id);
-        return;
-      }
-
-      sql = new SecSql();
-
-      sql.append("DELETE FROM article");
-      sql.append("WHERE id = ?", id);
-
-      DBUtil.delete(conn, sql);
-
-      System.out.printf("%d번 게시물이 삭제되었습니다.\n", id);
-    }
-    else if(cmd.equals("system exit")) {
+    } else if (rq.getUrlPath().equals("/usr/article/write")) {
+      articleController.write();
+    } else if (rq.getUrlPath().equals("/usr/article/list")) {
+      articleController.showList();
+    } else if(rq.getUrlPath().equals("/usr/article/detail")) {
+      articleController.showDetail();
+    } else if (rq.getUrlPath().equals("/usr/article/modify")) {
+      articleController.modify();
+    } else if (rq.getUrlPath().equals("/usr/article/delete")) {
+     articleController.delete();
+    } else if (cmd.equals("system exit")) {
       System.out.println("시스템 종료");
       System.exit(0);
-    }
-    else {
+    } else {
       System.out.println("명령어를 확인해주세요.");
     }
     return;
