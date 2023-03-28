@@ -1,15 +1,26 @@
 package org.example.controller;
 
 
-import org.example.Article;
+import org.example.dto.Article;
+import org.example.Rq;
+import org.example.service.ArticleService;
 import org.example.util.DBUtil;
 import org.example.util.SecSql;
 
+import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Scanner;
 
 public class ArticleController extends Controller {
+
+  private ArticleService articleService;
+
+  public ArticleController(Connection conn, Scanner sc, Rq rq) {
+    super(conn, sc, rq);
+    articleService = new ArticleService(conn);
+  }
 
   public void write() {
     System.out.println("== 게시물 등록 ==");
@@ -18,15 +29,7 @@ public class ArticleController extends Controller {
     System.out.printf("내용 : ");
     String body = scanner.nextLine();
 
-    SecSql sql = new SecSql();
-
-    sql.append("INSERT INTO article");
-    sql.append(" SET regDate = NOW()");
-    sql.append(", updateDate = NOW()");
-    sql.append(", title = ?", title);
-    sql.append(", `body` = ?", body);
-
-    int id = DBUtil.insert(conn, sql);
+    int id = articleService.write(title, body);
 
     System.out.printf("%d번 게시물이 등록되었습니다.\n", id);
   }
