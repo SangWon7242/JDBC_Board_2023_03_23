@@ -34,21 +34,9 @@ public class ArticleController extends Controller {
     System.out.printf("%d번 게시물이 등록되었습니다.\n", id);
   }
   public void showList() {
-    List<Article> articles = new ArrayList<>();
-
-    SecSql sql = new SecSql();
-
-    sql.append("SELECT *");
-    sql.append("FROM article");
-    sql.append("ORDER BY id DESC");
-
-    List<Map<String, Object>> articleListMap = DBUtil.selectRows(conn, sql);
-
-    for (Map<String, Object> articleMap : articleListMap) {
-      articles.add(new Article(articleMap));
-    }
-
     System.out.println("== 게시물 리스트 ==");
+
+    List<Article> articles = articleService.getArticles();
 
     if (articles.isEmpty()) {
       System.out.println("게시물이 존재하지 않습니다.");
@@ -70,20 +58,12 @@ public class ArticleController extends Controller {
       return;
     }
 
-    SecSql sql = new SecSql();
+    Article article = articleService.getArticleById(id);
 
-    sql.append("SELECT *");
-    sql.append("FROM article");
-    sql.append("WHERE id = ?", id);
-
-    Map<String, Object> articleMap = DBUtil.selectRow(conn, sql);
-
-    if (articleMap.isEmpty()) {
+    if (article == null) {
       System.out.printf("%d번 게시글은 존재하지 않습니다.\n", id);
       return;
     }
-
-    Article article = new Article(articleMap);
 
     System.out.printf("번호 : %d\n", article.id);
     System.out.printf("글쓴날짜 : %s\n", article.regDate);
@@ -100,15 +80,9 @@ public class ArticleController extends Controller {
       return;
     }
 
-    SecSql sql = new SecSql();
+    boolean articleExists = articleService.articleExists(id);
 
-    sql.append("SELECT COUNT(*) AS cnt");
-    sql.append("FROM article");
-    sql.append("WHERE id = ?", id);
-
-    int articlesCount = DBUtil.selectRowIntValue(conn, sql);
-
-    if (articlesCount == 0) {
+    if (articleExists == false) {
       System.out.printf("%d번 게시글은 존재하지 않습니다.\n", id);
       return;
     }
@@ -118,15 +92,7 @@ public class ArticleController extends Controller {
     System.out.printf("새 내용 : ");
     String body = scanner.nextLine();
 
-    sql = new SecSql();
-
-    sql.append("UPDATE article");
-    sql.append("SET updateDate = NOW()");
-    sql.append(", title = ?", title);
-    sql.append(", `body` = ?", body);
-    sql.append("WHERE id = ?", id);
-
-    DBUtil.update(conn, sql);
+    articleService.update(id, title, body);
 
     System.out.printf("%d번 게시물이 수정되었습니다.\n", id);
   }
@@ -141,25 +107,14 @@ public class ArticleController extends Controller {
 
     System.out.printf("== %d번 게시글 삭제 ==\n", id);
 
-    SecSql sql = new SecSql();
+    boolean articleExists = articleService.articleExists(id);
 
-    sql.append("SELECT COUNT(*) AS cnt");
-    sql.append("FROM article");
-    sql.append("WHERE id = ?", id);
-
-    int articlesCount = DBUtil.selectRowIntValue(conn, sql);
-
-    if (articlesCount == 0) {
+    if (articleExists == false) {
       System.out.printf("%d번 게시글은 존재하지 않습니다.\n", id);
       return;
     }
 
-    sql = new SecSql();
-
-    sql.append("DELETE FROM article");
-    sql.append("WHERE id = ?", id);
-
-    DBUtil.delete(conn, sql);
+    articleService.delete(id);
 
     System.out.printf("%d번 게시물이 삭제되었습니다.\n", id);
   }

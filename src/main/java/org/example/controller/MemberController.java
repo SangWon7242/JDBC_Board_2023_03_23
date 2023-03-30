@@ -2,8 +2,6 @@ package org.example.controller;
 
 import org.example.Rq;
 import org.example.service.MemberService;
-import org.example.util.DBUtil;
-import org.example.util.SecSql;
 
 import java.sql.Connection;
 import java.util.Scanner;
