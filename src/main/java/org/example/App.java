@@ -61,6 +61,8 @@ public class App {
 
     if (cmd.equals("/usr/member/join")) {
       memberController.join();
+    } if (cmd.equals("/usr/member/login")) {
+      memberController.login();
     } else if (rq.getUrlPath().equals("/usr/article/write")) {
       articleController.write();
     } else if (rq.getUrlPath().equals("/usr/article/list")) {
