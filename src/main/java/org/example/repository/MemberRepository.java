@@ -1,5 +1,6 @@
 package org.example.repository;
 
+import org.example.Container;
 import org.example.dto.Member;
 import org.example.util.DBUtil;
 import org.example.util.SecSql;
@@ -8,10 +9,6 @@ import java.sql.Connection;
 import java.util.Map;
 
 public class MemberRepository {
-  private Connection conn;
-  public MemberRepository(Connection conn) {
-    this.conn = conn;
-  }
 
   public boolean isLoginIdDup(String loginId) {
     SecSql sql = new SecSql();
@@ -20,7 +17,7 @@ public class MemberRepository {
     sql.append("FROM `member`");
     sql.append("WHERE loginId = ?", loginId);
 
-    return DBUtil.selectRowBooleanValue(conn, sql);
+    return DBUtil.selectRowBooleanValue(Container.conn, sql);
   }
 
   public int join(String loginId, String loginPw, String name) {
@@ -32,7 +29,7 @@ public class MemberRepository {
     sql.append(", loginPw = ?", loginPw);
     sql.append(", name = ?", name);
 
-    int id = DBUtil.insert(conn, sql);
+    int id = DBUtil.insert(Container.conn, sql);
 
     return id;
   }
@@ -44,7 +41,7 @@ public class MemberRepository {
     sql.append("FROM `member`");
     sql.append("WHERE loginId = ?", loginId);
 
-    Map<String, Object> memberMap = DBUtil.selectRow(conn, sql);
+    Map<String, Object> memberMap = DBUtil.selectRow(Container.conn, sql);
 
     if(memberMap.isEmpty()) {
       return null;

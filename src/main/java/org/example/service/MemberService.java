@@ -1,5 +1,6 @@
 package org.example.service;
 
+import org.example.Container;
 import org.example.dto.Member;
 import org.example.repository.MemberRepository;
 
@@ -7,8 +8,8 @@ import java.sql.Connection;
 
 public class MemberService {
   private MemberRepository memberRepository;
-  public MemberService(Connection conn) {
-    memberRepository = new MemberRepository(conn);
+  public MemberService() {
+    memberRepository = Container.memberRepository;
   }
 
   public boolean isLoginIdDup(String loginId) {

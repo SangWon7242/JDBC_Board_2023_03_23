@@ -1,33 +1,28 @@
 package org.example.controller;
 
 
+import org.example.Container;
 import org.example.dto.Article;
-import org.example.Rq;
 import org.example.service.ArticleService;
-import org.example.util.DBUtil;
-import org.example.util.SecSql;
 
-import java.sql.Connection;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.Scanner;
 
-public class ArticleController extends Controller {
+import static org.example.Container.rq;
+
+public class ArticleController {
 
   private ArticleService articleService;
 
-  public ArticleController(Connection conn, Scanner sc, Rq rq) {
-    super(conn, sc, rq);
-    articleService = new ArticleService(conn);
+  public ArticleController() {
+    articleService = Container.articleService;
   }
 
   public void write() {
     System.out.println("== 게시물 등록 ==");
     System.out.printf("제목 : ");
-    String title = scanner.nextLine();
+    String title = Container.scanner.nextLine();
     System.out.printf("내용 : ");
-    String body = scanner.nextLine();
+    String body = Container.scanner.nextLine();
 
     int id = articleService.write(title, body);
 
@@ -88,9 +83,9 @@ public class ArticleController extends Controller {
     }
 
     System.out.printf("새 제목 : ");
-    String title = scanner.nextLine();
+    String title = Container.scanner.nextLine();
     System.out.printf("새 내용 : ");
-    String body = scanner.nextLine();
+    String body = Container.scanner.nextLine();
 
     articleService.update(id, title, body);
 

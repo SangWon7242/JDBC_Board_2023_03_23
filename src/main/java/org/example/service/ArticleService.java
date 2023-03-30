@@ -1,5 +1,6 @@
 package org.example.service;
 
+import org.example.Container;
 import org.example.dto.Article;
 import org.example.repository.ArticleRepository;
 
@@ -8,8 +9,8 @@ import java.util.List;
 
 public class ArticleService {
   private ArticleRepository articleRepository;
-  public ArticleService(Connection conn) {
-    articleRepository = new ArticleRepository(conn);
+  public ArticleService() {
+    articleRepository = Container.articleRepository;
   }
 
   public int write(String title, String body) {
