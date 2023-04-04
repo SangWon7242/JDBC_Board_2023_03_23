@@ -59,10 +59,12 @@ public class App {
   }
 
   private void action(Rq rq, String cmd) {
-    if (cmd.equals("/usr/member/join")) {
+    if (rq.getUrlPath().equals("/usr/member/join")) {
       Container.memberController.join();
-    } if (cmd.equals("/usr/member/login")) {
+    } else if (rq.getUrlPath().equals("/usr/member/login")) {
       Container.memberController.login();
+    } else if (rq.getUrlPath().equals("/usr/member/whoami")) {
+      Container.memberController.whoami();
     } else if (rq.getUrlPath().equals("/usr/article/write")) {
       Container.articleController.write();
     } else if (rq.getUrlPath().equals("/usr/article/list")) {
