@@ -4,7 +4,6 @@ import org.example.Container;
 import org.example.dto.Article;
 import org.example.repository.ArticleRepository;
 
-import java.sql.Connection;
 import java.util.List;
 
 public class ArticleService {
@@ -13,8 +12,8 @@ public class ArticleService {
     articleRepository = Container.articleRepository;
   }
 
-  public int write(String title, String body) {
-    return articleRepository.write(title, body);
+  public int write(int memberId, String title, String body) {
+    return articleRepository.write(memberId, title, body);
   }
 
   public boolean articleExists(int id) {

@@ -29,7 +29,8 @@ public class ArticleController {
     System.out.printf("내용 : ");
     String body = Container.scanner.nextLine();
 
-    int id = articleService.write(title, body);
+    int memberId = Container.session.loginedMemberId;
+    int id = articleService.write(memberId, title, body);
 
     System.out.printf("%d번 게시물이 등록되었습니다.\n", id);
   }
