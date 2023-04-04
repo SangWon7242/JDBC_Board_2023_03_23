@@ -36,8 +36,14 @@ public class ArticleController {
   }
   public void showList() {
     System.out.println("== 게시물 리스트 ==");
+    int page = rq.getIntParam("page", 1);
+    String searchKeyword = rq.getParam("searchKeyword", "");
+    int pageItemCount = 10;
 
-    List<Article> articles = articleService.getArticles();
+    // 임시
+    pageItemCount = 5;
+
+    List<Article> articles = articleService.getForPrintArticleById(page, pageItemCount, searchKeyword);
 
     if (articles.isEmpty()) {
       System.out.println("게시물이 존재하지 않습니다.");

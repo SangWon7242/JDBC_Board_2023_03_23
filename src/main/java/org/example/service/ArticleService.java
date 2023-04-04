@@ -4,7 +4,9 @@ import org.example.Container;
 import org.example.dto.Article;
 import org.example.repository.ArticleRepository;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class ArticleService {
   private ArticleRepository articleRepository;
@@ -32,11 +34,17 @@ public class ArticleService {
     return articleRepository.getArticleById(id);
   }
 
-  public List<Article> getArticles() {
-    return articleRepository.getArticles();
-  }
-
   public void increaseHit(int id) {
     articleRepository.increaseHit(id);
+  }
+
+  public List<Article> getForPrintArticleById(int page, int pageItemCount, String searchKeyword) {
+    int limitFrom = (page - 1) * pageItemCount;
+    int limitTake = pageItemCount;
+
+    Map<String, Object> args = new HashMap<>();
+    args.put("limitFrom", limitFrom);
+    args.put("limitTake", limitTake);
+    return articleRepository.getArticles(args, searchKeyword);
   }
 }
