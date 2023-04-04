@@ -4,7 +4,7 @@ import org.example.Container;
 import org.example.dto.Member;
 import org.example.service.MemberService;
 
-public class MemberController extends Controller {
+public class MemberController {
   private MemberService memberService;
 
   public MemberController() {

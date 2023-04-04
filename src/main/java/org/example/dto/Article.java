@@ -1,7 +1,10 @@
 package org.example.dto;
 
+import lombok.Data;
+
 import java.util.Map;
 
+@Data
 public class Article {
   public int id;
   public String regDate;
@@ -24,18 +27,5 @@ public class Article {
     if(articleMap.get("extra__writerName") != null) {
       this.extra__writerName = (String)articleMap.get("extra__writerName");
     }
-  }
-
-  @Override
-  public String toString() {
-    return "Article{" +
-        "id=" + id +
-        ", regDate='" + regDate + '\'' +
-        ", updateDate='" + updateDate + '\'' +
-        ", memberId=" + memberId +
-        ", title='" + title + '\'' +
-        ", body='" + body + '\'' +
-        ", hit='" + hit + '\'' +
-        '}';
   }
 }

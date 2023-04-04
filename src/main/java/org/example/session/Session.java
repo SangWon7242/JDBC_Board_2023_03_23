@@ -13,7 +13,6 @@ public class Session {
   public boolean isLogined() {
     return loginedMemberId != -1;
   }
-
   public void login(Member member) {
     loginedMemberId = member.getId();
     loginedMember = member;
