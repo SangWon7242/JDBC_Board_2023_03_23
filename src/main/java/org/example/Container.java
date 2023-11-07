@@ -12,7 +12,6 @@ import java.sql.Connection;
 import java.util.Scanner;
 
 public class Container {
-
   public static ArticleRepository articleRepository;
   public static MemberRepository memberRepository;
 

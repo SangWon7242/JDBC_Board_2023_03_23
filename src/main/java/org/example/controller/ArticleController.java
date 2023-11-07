@@ -18,8 +18,17 @@ public class ArticleController {
   }
 
   public void write() {
-    if(Container.session.isLogined() == false) {
+    int boardId = rq.getIntParam("boardId", 0);
+
+    if (Container.session.isLogined() == false) {
       System.out.println("로그인 후 이용해주세요.");
+      return;
+    }
+
+    if (boardId == 0) {
+      System.out.println("boardId를 입력해주세요.");
+      System.out.println("공지사항 게시판 : 1");
+      System.out.println("자유게시판 : 2");
       return;
     }
 
@@ -30,13 +39,16 @@ public class ArticleController {
     String body = Container.scanner.nextLine();
 
     int memberId = Container.session.loginedMemberId;
-    int id = articleService.write(memberId, title, body);
+    int id = articleService.write(memberId, boardId, title, body);
 
     System.out.printf("%d번 게시물이 등록되었습니다.\n", id);
   }
+
   public void showList() {
-    System.out.println("== 게시물 리스트 ==");
+    System.out.println("== 게시물 리스트 (1 : 자유, 2 : 공지사항) ==");
+
     int page = rq.getIntParam("page", 1);
+    int boardId = rq.getIntParam("boardId", 0);
     String searchKeyword = rq.getParam("searchKeyword", "");
     String searchKeywordTypeCode = rq.getParam("searchKeywordTypeCode", "");
     int pageItemCount = 10;
@@ -44,7 +56,22 @@ public class ArticleController {
     // 임시
     pageItemCount = 5;
 
-    List<Article> articles = articleService.getForPrintArticleById(page, pageItemCount, searchKeyword, searchKeywordTypeCode);
+    List<Article> articles = null;
+
+    switch (boardId) {
+      case 0:
+        System.out.println("== 전체 게시물 리스트 ==");
+        articles = articleService.getForPrintArticleById(page, pageItemCount, searchKeyword, searchKeywordTypeCode);;
+        break;
+      case 1:
+        System.out.println("== 자유 게시물 리스트 ==");
+        articles = articleService.getForPrintArticleByBoard(page, boardId, pageItemCount, searchKeyword, searchKeywordTypeCode);
+        break;
+      case 2:
+        System.out.println("== 공지사항 게시물 리스트 ==");
+        articles = articleService.getForPrintArticleByBoard(page, boardId, pageItemCount, searchKeyword, searchKeywordTypeCode);
+        break;
+    }
 
     if (articles.isEmpty()) {
       System.out.println("게시물이 존재하지 않습니다.");
@@ -84,7 +111,7 @@ public class ArticleController {
   }
 
   public void modify() {
-    if(Container.session.isLogined() == false) {
+    if (Container.session.isLogined() == false) {
       System.out.println("로그인 후 이용해주세요.");
       return;
     }
@@ -105,7 +132,7 @@ public class ArticleController {
       return;
     }
 
-    if(article.memberId != Container.session.loginedMemberId) {
+    if (article.memberId != Container.session.loginedMemberId) {
       System.out.println("권한이 없습니다");
       return;
     }
@@ -121,7 +148,7 @@ public class ArticleController {
   }
 
   public void delete() {
-    if(Container.session.isLogined() == false) {
+    if (Container.session.isLogined() == false) {
       System.out.println("로그인 후 이용해주세요.");
       return;
     }
@@ -144,7 +171,7 @@ public class ArticleController {
       return;
     }
 
-    if(article.memberId != Container.session.loginedMemberId) {
+    if (article.memberId != Container.session.loginedMemberId) {
       System.out.println("권한이 없습니다");
       return;
     }

@@ -14,8 +14,8 @@ public class ArticleService {
     articleRepository = Container.articleRepository;
   }
 
-  public int write(int memberId, String title, String body) {
-    return articleRepository.write(memberId, title, body);
+  public int write(int memberId, int boardId, String title, String body) {
+    return articleRepository.write(memberId, boardId, title, body);
   }
 
   public boolean articleExists(int id) {
@@ -47,4 +47,15 @@ public class ArticleService {
     args.put("limitTake", limitTake);
     return articleRepository.getArticles(args, searchKeyword, searchKeywordTypeCode);
   }
+
+  public List<Article> getForPrintArticleByBoard(int page, int boardId, int pageItemCount, String searchKeyword, String searchKeywordTypeCode) {
+    int limitFrom = (page - 1) * pageItemCount;
+    int limitTake = pageItemCount;
+
+    Map<String, Object> args = new HashMap<>();
+    args.put("limitFrom", limitFrom);
+    args.put("limitTake", limitTake);
+    return articleRepository.getArticlesByBoard(args, boardId, searchKeyword, searchKeywordTypeCode);
+  }
+
 }

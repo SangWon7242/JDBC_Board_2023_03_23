@@ -24,8 +24,6 @@ CREATE TABLE `member` (
 	`name` CHAR(200) NOT NULL
 );
 
-
-
 # 테스트 회원 데이터
 INSERT INTO `member`
 SET regDate = NOW(),
@@ -54,11 +52,36 @@ ALTER TABLE article ADD COLUMN memberId INT(10) UNSIGNED NOT NULL AFTER updateDa
 # 게시물 테이블에 hit 칼럼추가
 ALTER TABLE article ADD COLUMN hit INT(10) UNSIGNED NOT NULL AFTER `body`;
 
+# 게시물 테이블에 boardId 칼럼추가
+ALTER TABLE article ADD COLUMN boardId INT(10) UNSIGNED NOT NULL AFTER memberId;
+
+DESC article;
+
+# 회원 테이블 생성
+CREATE TABLE board (
+	id INT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT,
+	regDate DATETIME NOT NULL,
+	updateDate DATETIME NOT NULL,
+	`name` CHAR(200) NOT NULL
+);
+
+# borard 데이터 생성
+INSERT INTO board
+SET regDate = NOW(),
+updateDate = NOW(),
+`name` = '자유';
+
+INSERT INTO board
+SET regDate = NOW(),
+updateDate = NOW(),
+`name` = '공지';
+
 # 테스트 게시물 데이터
 INSERT INTO article
 SET regDate = NOW(),
 updateDate = NOW(),
 memberId = 1,
+boardId = 1,
 title = '제목1',
 `body` = '내용1',
 hit = 3;
@@ -67,6 +90,7 @@ INSERT INTO article
 SET regDate = NOW(),
 updateDate = NOW(),
 memberId = 1,
+boardId = 1,
 title = '제목2',
 `body` = '내용2',
 hit = 7;
@@ -75,6 +99,7 @@ INSERT INTO article
 SET regDate = NOW(),
 updateDate = NOW(),
 memberId = 2,
+boardId = 2,
 title = '제목3',
 `body` = '내용3',
 hit = 20;
@@ -83,6 +108,7 @@ INSERT INTO article
 SET regDate = NOW(),
 updateDate = NOW(),
 memberId = 3,
+boardId = 2,
 title = '제목4',
 `body` = '내용4',
 hit = 17;
@@ -90,6 +116,6 @@ hit = 17;
 SELECT * FROM article;
 
 # 랜덤하게 테스트 데이터 생성
-INSERT INTO article (regDate, updateDate, memberId, title, `body`, hit)
-SELECT NOW(), NOW(), FLOOR(RAND()*10), CONCAT('제목-', FLOOR(RAND()*100)), CONCAT('내용-', FLOOR(RAND()*100)), FLOOR(RAND()*10)
+INSERT INTO article (regDate, updateDate, memberId, boardId, title, `body`, hit)
+SELECT NOW(), NOW(), FLOOR(RAND()*10), FLOOR(1 + RAND() * 2), CONCAT('제목-', FLOOR(RAND()*100)), CONCAT('내용-', FLOOR(RAND()*100)), FLOOR(RAND()*10)
 FROM article;

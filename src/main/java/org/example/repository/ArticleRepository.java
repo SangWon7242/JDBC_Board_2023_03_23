@@ -10,13 +10,14 @@ import java.util.List;
 import java.util.Map;
 
 public class ArticleRepository {
-  public int write(int memberId, String title, String body) {
+  public int write(int memberId, int boardId, String title, String body) {
     SecSql sql = new SecSql();
 
     sql.append("INSERT INTO article");
     sql.append(" SET regDate = NOW()");
     sql.append(", updateDate = NOW()");
     sql.append(", memberId = ?", memberId);
+    sql.append(", boardId = ?", boardId);
     sql.append(", title = ?", title);
     sql.append(", `body` = ?", body);
 
@@ -141,4 +142,70 @@ public class ArticleRepository {
 
     DBUtil.update(Container.conn, sql);
   }
+
+  public List<Article> getArticlesByBoard(Map<String, Object> args, int boardId, String searchKeyword, String searchKeywordTypeCode) {
+    SecSql sql = new SecSql();
+
+    if(args.containsKey("boardId")) {
+      boardId = (int) args.get("boardId");
+    }
+
+    if(args.containsKey("searchKeyword")) {
+      searchKeyword = (String) args.get("searchKeyword");
+    }
+
+    if(args.containsKey("searchKeywordTypeCode")) {
+      searchKeywordTypeCode = (String) args.get("searchKeywordTypeCode");
+    }
+
+    int limitFrom = -1;
+    int limitTake = -1;
+
+    if(args.containsKey("limitFrom")) {
+      limitFrom = (int) args.get("limitFrom");
+    }
+
+    if(args.containsKey("limitTake")) {
+      limitTake = (int) args.get("limitTake");
+    }
+
+    sql.append("SELECT A.*, M.name AS extra__writerName");
+    sql.append(", B.name AS board__type");
+    sql.append("FROM article AS A");
+    sql.append("INNER JOIN member AS M");
+    sql.append("ON A.memberId = M.id");
+    sql.append("INNER JOIN board AS B");
+    sql.append("ON A.boardId = B.id");
+    if(searchKeyword.length() > 0) {
+      // sql.append("WHERE A.title LIKE CONCAT('%', ?, '%')", searchKeyword);
+      switch (searchKeywordTypeCode) {
+        case "title,body":
+          sql.append("WHERE A.title LIKE CONCAT('%', ?, '%')", searchKeyword);
+          sql.append("OR A.`body` LIKE CONCAT('%', ?, '%')", searchKeyword);
+          break;
+        case "title":
+          sql.append("WHERE A.title LIKE CONCAT('%', ?, '%')", searchKeyword);
+          break;
+        case "body":
+          sql.append("WHERE A.`body` LIKE CONCAT('%', ?, '%')", searchKeyword);
+          break;
+      }
+    }
+    sql.append("ORDER BY A.id DESC");
+
+    if(limitFrom != -1) {
+      sql.append("LIMIT ?, ?", limitFrom, limitTake);
+    }
+
+    List<Article> articles = new ArrayList<>();
+
+    List<Map<String, Object>> articleListMap = DBUtil.selectRows(Container.conn, sql);
+
+    for (Map<String, Object> articleMap : articleListMap) {
+      articles.add(new Article(articleMap));
+    }
+
+    return articles;
+  }
+
 }
