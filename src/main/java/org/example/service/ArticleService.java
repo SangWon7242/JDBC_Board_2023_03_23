@@ -38,13 +38,13 @@ public class ArticleService {
     articleRepository.increaseHit(id);
   }
 
-  public List<Article> getForPrintArticleById(int page, int pageItemCount, String searchKeyword) {
+  public List<Article> getForPrintArticleById(int page, int pageItemCount, String searchKeyword, String searchKeywordTypeCode) {
     int limitFrom = (page - 1) * pageItemCount;
     int limitTake = pageItemCount;
 
     Map<String, Object> args = new HashMap<>();
     args.put("limitFrom", limitFrom);
     args.put("limitTake", limitTake);
-    return articleRepository.getArticles(args, searchKeyword);
+    return articleRepository.getArticles(args, searchKeyword, searchKeywordTypeCode);
   }
 }
